@@ -207,7 +207,7 @@ def chat_loop():
             print(warmup_name + '\n')
             if not args.text:
                 speak(warmup_name)
-            get_user_input()
+            args.name = get_user_input()
 
             print("\n>>> AI: \n")
             warmup_mood = "Nice to meet you, " + args.name + \
@@ -398,7 +398,7 @@ def chat_loop():
                 print("\n")
                 print("Question: \n")
 
-                question = question_generator_future.result().replace('\n', '')
+                question = "Do you feel comfortable sharing that with me?"
                 print(question)
                 print("\n")
 
