@@ -21,7 +21,7 @@ from playsound import playsound
 
 from src.ask_gpt import ask_gpt4_streaming, ask_gpt4, check_violation
 from src.elevenlab_text_to_speech import elevenlab_text_to_speech
-from src.google_speech_to_text import speech_to_text
+#from src.google_speech_to_text import speech_to_text
 from src.google_text_to_speech import google_text_to_speech
 from src.prompts import (storytelling_chat_preset,
                          question_generator_prompt_quan,

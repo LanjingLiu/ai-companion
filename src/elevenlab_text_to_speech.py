@@ -10,7 +10,7 @@ from playsound import playsound
 load_dotenv()
 api_key = os.getenv("ELEVENLAB_API_KEY")
 
-api_key = ELEVENLAB_API_KEY
+#api_key = ELEVENLAB_API_KEY
 voice_id = "EXAVITQu4vr4xnSDxMaL"  # Bella
 
 
