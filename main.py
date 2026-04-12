@@ -203,15 +203,34 @@ def chat_loop():
     if not args.demo:
         if args.opening == 1:
             print("\n>>> AI: \n")
-            warmup_name = "Hello, my little friend! My name is Alexa. I'm really looking forward to spending some time with you today! May I know your name, please?"
+            
+            # implemented to save name and age
+            warmup_name = "Hello, my little friend! My name is Hoppy. I'm really looking forward to spending some time with you today! May I know your name, please?"
             print(warmup_name + '\n')
             if not args.text:
                 speak(warmup_name)
             args.name = get_user_input()
 
             print("\n>>> AI: \n")
-            warmup_mood = "Nice to meet you, " + args.name + \
-                "! Now, could you please tell me how you're feeling today? Are you feeling happy, excited, or maybe a little sleepy?"
+            warmup_age = "Nice to meet you, " + args.name + "! How old are you?"
+            print(warmup_age + '\n')
+            if not args.text:
+                speak(warmup_age)
+            args.age = get_user_input()
+
+            # Save name and age to file
+            import csv, os
+            file_exists = os.path.isfile('data/participants.csv')
+            os.makedirs('data', exist_ok=True)
+            with open('data/participants.csv', 'a', newline='') as f:
+                writer = csv.writer(f)
+                if not file_exists:
+                    writer.writerow(['name', 'age', 'timestamp'])
+                import datetime
+                writer.writerow([args.name, args.age, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
+
+            print("\n>>> AI: \n")
+            warmup_mood = "Thank you! Now, could you please tell me how you're feeling today? Are you feeling happy, excited, or maybe a little sleepy?"
             print(warmup_mood + '\n')
             if not args.text:
                 speak(warmup_mood)
@@ -403,6 +422,17 @@ def chat_loop():
                 print("\n")
 
                 chat_history.append({"role": "question", "content": question})
+
+                # get and save privacy response
+                privacy_response = get_user_input()
+                chat_history.append({"role": "privacy_response", "content": privacy_response})
+
+                # save to privacy log
+                import csv
+                os.makedirs('data', exist_ok=True)
+                with open('data/privacy_responses.csv', 'a', newline='') as f:
+                    writer = csv.writer(f)
+                    writer.writerow([args.name, args.age, question, privacy_response, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
                 if not args.text:
                     speak("Question: " + question)
                 # print("\n")
