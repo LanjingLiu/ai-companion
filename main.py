@@ -414,25 +414,28 @@ def chat_loop():
                 break
 
             if dialog_counter > 0:
+                # rotate through different privacy questions
+                privacy_questions = [
+                    "I'd love to remember this story for next time — is it okay if I save it?",
+                    "Would you be okay if your parents could see what we talked about today?",
+                    "Can I ask — do you have a favorite place you like to go? You don't have to share if you don't want to!",
+                    "I really enjoyed hearing about you! Would it be okay if I shared what I learned about you with others?",
+                    "Do you feel comfortable telling me more about yourself?",
+                    "Is it okay if I remember your name and age for next time we talk?",
+                    "Would you be okay if the people who made me could read our story?",
+                    "Do you want to keep our story just between us, or is it okay to share it?"
+                ]
+                
+                # pick question based on dialog counter so they rotate
+                question_index = (args.dialog - dialog_counter) % len(privacy_questions)
+                question = privacy_questions[question_index]
+                
                 print("\n")
-                print("Question: \n")
-
-                question = "Do you feel comfortable sharing that with me?"
+                print(">>> Hoppy asks: \n")
                 print(question)
                 print("\n")
 
-                chat_history.append({"role": "question", "content": question})
-
-                # get and save privacy response
-                privacy_response = get_user_input()
-                chat_history.append({"role": "privacy_response", "content": privacy_response})
-
-                # save to privacy log
-                import csv
-                os.makedirs('data', exist_ok=True)
-                with open('data/privacy_responses.csv', 'a', newline='') as f:
-                    writer = csv.writer(f)
-                    writer.writerow([args.name, args.age, question, privacy_response, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
+                chat_history.append({"role": "privacy_question", "content": question})
                 if not args.text:
                     speak("Question: " + question)
                 # print("\n")
@@ -454,7 +457,20 @@ def chat_loop():
             # restart_chat_loop(0)
             break
 
-        # get user input
+        # get privacy response separately - don't pass it to the story
+        privacy_response = get_user_input()
+        
+        # save privacy response to CSV
+        import csv
+        os.makedirs('data', exist_ok=True)
+        with open('data/privacy_responses.csv', 'a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([args.name, args.age, question, privacy_response, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
+        chat_history.append({"role": "privacy_response", "content": privacy_response})
+
+        # now get the actual story input separately
+        print("\n>>> AI: \n")
+        print("Great! Now, let's continue our story. What happens next?\n")
         user_input = get_user_input()
 
         # tag of if the agent has encouraged the user to continue the story
