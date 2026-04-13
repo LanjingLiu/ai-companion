@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Hoppy</title>
+<style>
+body { font-family: Arial, sans-serif; background: #002D72; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+.chat-box { background: white; border-radius: 20px; width: 400px; height: 550px; display: flex; flex-direction: column; overflow: hidden; }
+.header { background: #002D72; color: white; padding: 16px; text-align: center; font-size: 20px; font-weight: bold; }
+.messages { flex: 1; padding: 16px; overflow-y: auto; background: #f5f7ff; }
+.msg { margin: 8px 0; padding: 10px 14px; border-radius: 16px; max-width: 80%; font-size: 14px; }
+.ai { background: white; color: black; border-bottom-left-radius: 4px; }
+.user { background: #002D72; color: white; margin-left: auto; border-bottom-right-radius: 4px; }
+.input-row { display: flex; padding: 12px; gap: 8px; border-top: 1px solid #eee; }
+input { flex: 1; padding: 10px 14px; border-radius: 20px; border: 1px solid #ccc; font-size: 14px; outline: none; }
+button { background: #002D72; color: white; border: none; border-radius: 50%; width: 42px; height: 42px; font-size: 20px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="chat-box">
+  <div class="header">🐦 Hoppy — Your AI Friend!</div>
+  <div class="messages" id="messages">
+    <div class="msg ai">Hello! My name is Hoppy 🐦 May I know your name?</div>
+  </div>
+  <div class="input-row">
+    <input id="inp" type="text" placeholder="Type here..." />
+    <button id="btn">➤</button>
+  </div>
+</div>
+<script>
+var state = 'name', userName = '', userAge = '', sessionId = Date.now().toString();
+
+document.getElementById('btn').addEventListener('click', send);
+document.getElementById('inp').addEventListener('keydown', function(e){ if(e.key==='Enter') send(); });
+
+function addMsg(text, who) {
+  var d = document.createElement('div');
+  d.className = 'msg ' + who;
+  d.textContent = text;
+  document.getElementById('messages').appendChild(d);
+  document.getElementById('messages').scrollTop = 99999;
+}
+
+function send() {
+  var txt = document.getElementById('inp').value.trim();
+  if (!txt) return;
+  addMsg(txt, 'user');
+  document.getElementById('inp').value = '';
+
+  if (state === 'name') {
+    userName = txt;
+    addMsg('Nice to meet you, ' + userName + '! How old are you?', 'ai');
+    state = 'age';
+
+  } else if (state === 'age') {
+    userAge = txt;
+    fetch('http://127.0.0.1:5000/save_participant', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({name: userName, age: userAge})
+    });
+    addMsg('Great! How are you feeling today?', 'ai');
+    state = 'mood';
+
+  } else if (state === 'mood') {
+    addMsg('Let\'s make up a story together! What should our main character be?', 'ai');
+    state = 'story';
+
+  } else {
+    fetch('http://127.0.0.1:5000/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({message: txt, session_id: sessionId, name: userName, age: userAge})
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data){ addMsg(data.reply, 'ai'); })
+    .catch(function(){ addMsg('Oops! Something went wrong.', 'ai'); });
+  }
+}
+</script>
+</body>
+</html>
